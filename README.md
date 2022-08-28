@@ -34,23 +34,18 @@
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
+        <li><a href="#usage">Usage</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -63,13 +58,19 @@
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 -->
 
-There is ....
+LNbits a free and open-source lightning wallet that offers a lot of extension. 
+LNbits can run on any lightning-network funding source, currently supporting LND, c-lightning, OpenNode, lntxbot, LNPay and even LNbits itself!
 
-Here's why:
-* ...
-* ..
+You can run LNbits for yourself, or easily take the service from LNBits.
 
-Bla, bla.
+Each wallet has its own API keys and there is no limit to the number of wallets you can make.
+
+Extensions add extra functionality to LNbits so it is possible to experiment with a range of cutting-edge technologies on the lightning network. One of the extension ist LNURL-withdraw.
+
+You can generate LNURL-withdraw links wich are also available in form of QR-Codes. With this QR-Codes every wallet that supports LNURL-withdraw can remain the amount which is defined.
+
+Generating vouchers in large quantities by the GUI is painful. Therefore you can use this script.
+
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -87,10 +88,11 @@ Bla, bla.
    ```sh
    git clone https://github.com/f418me/LNbitsVoucherGenerator.git
    ```
-2. Install Pyhton Packages under Prerequisites
+2. Install Pyhton Packages:
    ```sh
    pip install pandas
    pip install PIL
+   etc.
    ```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -98,8 +100,8 @@ Bla, bla.
 
 <!-- USAGE EXAMPLES -->
 ### Usage
-
-Make your config.
+Setup an LNBits Wallet and activate the LNURL-withdraw extension.
+Do the configuration in the config.ini file. Maybe you also like to change the desing of the voucher. Just define an other background image.
 
  ```sh
    python main.py

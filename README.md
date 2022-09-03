@@ -90,9 +90,11 @@ Generating vouchers in large quantities by the GUI is painful. Therefore you can
    ```
 2. Install Pyhton Packages:
    ```sh
+   pip install cairosvg
+   pip install requests
    pip install pandas
    pip install PIL
-   etc.
+   pip install fpdf
    ```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -114,8 +116,9 @@ Do the configuration in the config.ini file. Maybe you also like to change the d
 ## Roadmap
 
 - [ ] Add Changelog
+- [ ] Add Logging
 - [ ] Add Docker Compose
-- [ ] Add possibility to use CSV-Files as Input to genere the vouchers
+- [ ] Add possibility to use CSV-Files as Input to generate the vouchers
 
 
 See the [open issues](https://github.com/f418me/LNBitsVoucherGenerator/issues) for a full list of proposed features (and known issues).

@@ -13,56 +13,56 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 
-def createWithdrawLink(withdrawLink):
+def create_withdraw_link(withdraw_link):
     payload = json.dumps({
-        "title": withdrawLink.get_title(),
-        "min_withdrawable": withdrawLink.get_minWithdrawable(),
-        "max_withdrawable": withdrawLink.get_minWithdrawable(),
-        "uses": withdrawLink.get_uses(),
-        "wait_time": withdrawLink.get_waitTime(),
+        "title": withdraw_link.get_title(),
+        "min_withdrawable": withdraw_link.get_min_withdrawable(),
+        "max_withdrawable": withdraw_link.get_min_withdrawable(),
+        "uses": withdraw_link.get_uses(),
+        "wait_time": withdraw_link.get_wait_time(),
         "is_unique": False,
-        "webhook_url": withdrawLink.get_webhookUrl()
+        "webhook_url": withdraw_link.get_webhook_url()
     })
     headers = {
         'Content-type': 'application/json',
         'X-Api-Key': config.get('LNBits', 'ApiKey')
     }
 
-    response = requests.request("POST", withdrawLink.get_url(), headers=headers, data=payload)
+    response = requests.request("POST", withdraw_link.get_url(), headers=headers, data=payload)
 
     return pd.json_normalize(response.json())
 
 
-def createPage(pageCounter, idList):
-    for i in range(len(idList)):
-        print(idList[i])
-        svg_url = 'https://legend.lnbits.com/withdraw/img/' + idList[i]
+def create_page(page_counter, id_list):
+    for i in range(len(id_list)):
+        print(id_list[i])
+        svg_url = 'https://legend.lnbits.com/withdraw/img/' + id_list[i]
 
         # Get svg data
         svg_data = requests.get(svg_url).content
-        pngfile = config.get('General', 'OutputDirectory') + '/' + 'qr_Page_' + str(pageCounter) + '_' + str(i) + '.png'
-        cairosvg.svg2png(bytestring=svg_data, write_to=pngfile)
+        png_file = config.get('General', 'OutputDirectory') + '/' + 'qr_Page_' + str(page_counter) + '_' + str(i) + '.png'
+        cairosvg.svg2png(bytestring=svg_data, write_to=png_file)
 
     background = Image.open(config.get('Page', 'BaseVoucher'))
     background = background.convert("RGBA")
 
-    qrXCoord = [e.strip() for e in config.get('Page', 'QrXCoord').split(',')]
-    qrYCoord = [e.strip() for e in config.get('Page', 'QrYCoord').split(',')]
+    qr_x_coord = [e.strip() for e in config.get('Page', 'QrXCoord').split(',')]
+    qr_y_coord = [e.strip() for e in config.get('Page', 'QrYCoord').split(',')]
 
-    currentQROnPage = 0
-    for xCord in qrXCoord:
-        frontImage = Image.open(
-            config.get('General', 'OutputDirectory') + '/' + 'qr_Page_' + str(pageCounter) + '_' + str(
-                currentQROnPage) + '.png')
-        frontImage = frontImage.resize((int(config.get('Page', 'QrCodeSize')), int(config.get('Page', 'QrCodeSize'))))
-        frontImage = frontImage.convert("RGBA")
-        background.paste(frontImage, (int(xCord), int(qrYCoord[currentQROnPage])), frontImage)
-        currentQROnPage = currentQROnPage + 1
-    pageFileName = config.get('General', 'OutputDirectory') + '/' + 'page_' + str(pageCounter) + '.png'
+    current_qr_on_page = 0
+    for xCord in qr_x_coord:
+        front_image = Image.open(
+            config.get('General', 'OutputDirectory') + '/' + 'qr_Page_' + str(page_counter) + '_' + str(
+                current_qr_on_page) + '.png')
+        front_image = front_image.resize((int(config.get('Page', 'QrCodeSize')), int(config.get('Page', 'QrCodeSize'))))
+        front_image = front_image.convert("RGBA")
+        background.paste(front_image, (int(xCord), int(qr_y_coord[current_qr_on_page])), front_image)
+        current_qr_on_page = current_qr_on_page + 1
+    page_file_name = config.get('General', 'OutputDirectory') + '/' + 'page_' + str(page_counter) + '.png'
 
-    background.save(pageFileName, format="png")
+    background.save(page_file_name, format="png")
 
-    return pageFileName
+    return page_file_name
 
 
 def main():
@@ -70,33 +70,33 @@ def main():
     for f in files:
         os.remove(f)
 
-    withdrawLink = ConfigWithdrawLink()
-    dataFrame = pd.DataFrame()
+    withdraw_link = ConfigWithdrawLink()
+    data_frame = pd.DataFrame()
     for x in range(int(config.get('Voucher', 'NumberOfVoucher'))):
-        dataFrame = pd.concat([dataFrame, createWithdrawLink(withdrawLink)])
+        data_frame = pd.concat([data_frame, create_withdraw_link(withdraw_link)])
 
-    dataFrame.reset_index()
-    idList = []
-    pageCounter = 0
-    fileNamePages = []
-    for index, row in dataFrame.iterrows():
-        idList.append(row['id'])
-        print(idList)
+    data_frame.reset_index()
+    id_list = []
+    page_counter = 0
+    file_name_pages = []
+    for index, row in data_frame.iterrows():
+        id_list.append(row['id'])
+        print(id_list)
         # Länge aus Array Koord ermitteln
-        if len(idList) == 4:
-            pageCounter = pageCounter + 1
-            fileNamePages.append(createPage(pageCounter, idList))
-            idList = []
+        if len(id_list) == 4:
+            page_counter = page_counter + 1
+            file_name_pages.append(create_page(page_counter, id_list))
+            id_list = []
 
-    if len(idList) > 0:
-        pageCounter = pageCounter + 1
-        fileNamePages.append(createPage(pageCounter, idList))
-        idList = []
+    if len(id_list) > 0:
+        page_counter = page_counter + 1
+        file_name_pages.append(create_page(page_counter, id_list))
+        id_list = []
 
-    print(fileNamePages)
+    print(file_name_pages)
 
     pdf = FPDF()
-    for image in fileNamePages:
+    for image in file_name_pages:
         pdf.add_page()
         pdf.set_title('Ekasi Voucher')
         pdf.image(image, 1, 1, 210)

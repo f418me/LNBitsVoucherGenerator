@@ -79,8 +79,8 @@ def generate_images(voucher_ids, page_config, output_directory):
     id_list = []
     page_counter = 0
     file_name_pages = []
-    for index, id in enumerate(voucher_ids):
-        id_list.append(id)
+    for index, voucher_id in enumerate(voucher_ids):
+        id_list.append(voucher_id)
         # Länge aus Array Koord ermitteln
         if len(id_list) == 4:
             page_counter += 1
@@ -111,11 +111,11 @@ def main():
     config = Config("config.ini")
     clear_output_directory(config.general.output_directory)
     voucher_ids = generate_vouchers(config.voucher.number_of_voucher, config.voucher, config.ln_bits)
-    file_name_pages = generate_images(voucher_ids, config.page, config.general.output_directory)
-    pdf = generate_pdf(file_name_pages)
+    images = generate_images(voucher_ids, config.page, config.general.output_directory)
+    pdf = generate_pdf(images)
 
     filename = f"{config.general.output_directory}/{config.voucher.name_of_voucher_batch}_Vouchers.pdf"
-    pdf.output(filename, "F")
+    pdf.output(filename)
     pdf.close()
     logging.info(f"Wrote generated PDF file to \"{filename}\".")
 

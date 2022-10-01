@@ -1,5 +1,4 @@
 cairosvg
 requests
-pandas
 pillow
 fpdf

@@ -1,9 +1,9 @@
 import configparser
+
 import cairosvg
 from PIL import Image
 import requests
 import json
-import pandas as pd
 from fpdf import FPDF
 import os
 import glob
@@ -28,9 +28,9 @@ def create_withdraw_link(withdraw_link):
         'X-Api-Key': config.get('LNBits', 'ApiKey')
     }
 
-    response = requests.request("POST", withdraw_link.get_url(), headers=headers, data=payload)
+    response = requests.request("POST", withdraw_link.get_url(), headers=headers, data=payload).json()
 
-    return pd.json_normalize(response.json())
+    return response["id"]
 
 
 def create_page(page_counter, id_list):
@@ -40,7 +40,8 @@ def create_page(page_counter, id_list):
 
         # Get svg data
         svg_data = requests.get(svg_url).content
-        png_file = config.get('General', 'OutputDirectory') + '/' + 'qr_Page_' + str(page_counter) + '_' + str(i) + '.png'
+        png_file = config.get('General', 'OutputDirectory') + '/' + 'qr_Page_' + str(page_counter) + '_' + str(
+            i) + '.png'
         cairosvg.svg2png(bytestring=svg_data, write_to=png_file)
 
     background = Image.open(config.get('Page', 'BaseVoucher'))
@@ -71,29 +72,24 @@ def main():
         os.remove(f)
 
     withdraw_link = ConfigWithdrawLink()
-    data_frame = pd.DataFrame()
+    voucher_ids = []
     for x in range(int(config.get('Voucher', 'NumberOfVoucher'))):
-        data_frame = pd.concat([data_frame, create_withdraw_link(withdraw_link)])
+        voucher_ids.append(create_withdraw_link(withdraw_link))
 
-    data_frame.reset_index()
     id_list = []
     page_counter = 0
     file_name_pages = []
-    for index, row in data_frame.iterrows():
-        id_list.append(row['id'])
-        print(id_list)
+    for index, id in enumerate(voucher_ids):
+        id_list.append(id)
         # Länge aus Array Koord ermitteln
         if len(id_list) == 4:
-            page_counter = page_counter + 1
+            page_counter += 1
             file_name_pages.append(create_page(page_counter, id_list))
             id_list = []
 
     if len(id_list) > 0:
-        page_counter = page_counter + 1
+        page_counter += 1
         file_name_pages.append(create_page(page_counter, id_list))
-        id_list = []
-
-    print(file_name_pages)
 
     pdf = FPDF()
     for image in file_name_pages:

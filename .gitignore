@@ -1,2 +1,5 @@
 /venv/pyvenv.cfg
 /config_prod.ini
+
+# Content of output directory
+output/*

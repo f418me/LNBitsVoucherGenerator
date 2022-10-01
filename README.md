@@ -90,11 +90,7 @@ Generating vouchers in large quantities by the GUI is painful. Therefore you can
    ```
 2. Install Pyhton Packages:
    ```sh
-   pip install cairosvg
-   pip install requests
-   pip install pandas
-   pip install PIL
-   pip install fpdf
+   pip install -r requirements.txt
    ```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

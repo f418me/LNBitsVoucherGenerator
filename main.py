@@ -7,6 +7,10 @@ import os
 import glob
 from config import Config
 
+import logging
+
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+
 
 def create_withdraw_link(voucher_config, ln_bits_config):
     payload = json.dumps({
@@ -23,14 +27,14 @@ def create_withdraw_link(voucher_config, ln_bits_config):
         'X-Api-Key': ln_bits_config.api_key
     }
 
-    response = requests.request("POST", ln_bits_config.withdraw_link, headers=headers, data=payload).json()
-
-    return response["id"]
+    response_id = requests.request("POST", ln_bits_config.withdraw_link, headers=headers, data=payload).json()
+    voucher_id = response_id["id"]
+    logging.info(f"Generated voucher with id {voucher_id}.")
+    return voucher_id
 
 
 def create_page(page_counter, id_list, page_config, output_directory):
     for i in range(len(id_list)):
-        print(id_list[i])
         svg_url = f"https://legend.lnbits.com/withdraw/img/{id_list[i]}"
 
         # Get svg data
@@ -55,15 +59,19 @@ def create_page(page_counter, id_list, page_config, output_directory):
 
     background.save(page_file_name, format="png")
 
+    logging.info(f"Created page Nr. {page_counter} and saved it to \"{page_file_name}\".")
+
     return page_file_name
 
 
 def generate_pdf(file_name_pages):
     pdf = FPDF()
+    voucher_title = 'Ekasi Voucher'
     for image in file_name_pages:
         pdf.add_page()
-        pdf.set_title('Ekasi Voucher')
+        pdf.set_title(voucher_title)
         pdf.image(image, 1, 1, 210)
+    logging.info(f"Generated PDF \"{voucher_title}\" with {len(file_name_pages)} page(s).")
     return pdf
 
 
@@ -96,6 +104,7 @@ def clear_output_directory(output_directory):
     files = glob.glob(output_directory + '/*')
     for f in files:
         os.remove(f)
+    logging.info(f"Cleared output directory \"{output_directory}\".")
 
 
 def main():
@@ -108,6 +117,7 @@ def main():
     filename = f"{config.general.output_directory}/{config.voucher.name_of_voucher_batch}_Vouchers.pdf"
     pdf.output(filename, "F")
     pdf.close()
+    logging.info(f"Wrote generated PDF file to \"{filename}\".")
 
 
 if __name__ == "__main__":

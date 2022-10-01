@@ -1,5 +1,3 @@
-import configparser
-
 import cairosvg
 from PIL import Image
 import requests
@@ -7,28 +5,27 @@ import json
 from fpdf import FPDF
 import os
 import glob
-from config_withdraw_link import ConfigWithdrawLink
+from config import Config
 
-config = configparser.ConfigParser()
-config.read('config.ini')
+config = Config('config.ini')
 
 
-def create_withdraw_link(withdraw_link):
+def create_withdraw_link():
     payload = json.dumps({
-        "title": withdraw_link.get_title(),
-        "min_withdrawable": withdraw_link.get_min_withdrawable(),
-        "max_withdrawable": withdraw_link.get_min_withdrawable(),
-        "uses": withdraw_link.get_uses(),
-        "wait_time": withdraw_link.get_wait_time(),
+        "title": config.voucher.title,
+        "min_withdrawable": config.voucher.min_withdrawable,
+        "max_withdrawable": config.voucher.max_withdrawable,
+        "uses": config.voucher.uses,
+        "wait_time": config.voucher.wait_time,
         "is_unique": False,
-        "webhook_url": withdraw_link.get_webhook_url()
+        "webhook_url": config.voucher.webhook_url
     })
     headers = {
         'Content-type': 'application/json',
-        'X-Api-Key': config.get('LNBits', 'ApiKey')
+        'X-Api-Key': config.ln_bits.api_key
     }
 
-    response = requests.request("POST", withdraw_link.get_url(), headers=headers, data=payload).json()
+    response = requests.request("POST", config.ln_bits.withdraw_link, headers=headers, data=payload).json()
 
     return response["id"]
 
@@ -40,26 +37,26 @@ def create_page(page_counter, id_list):
 
         # Get svg data
         svg_data = requests.get(svg_url).content
-        png_file = config.get('General', 'OutputDirectory') + '/' + 'qr_Page_' + str(page_counter) + '_' + str(
+        png_file = config.general.output_directory + '/' + 'qr_Page_' + str(page_counter) + '_' + str(
             i) + '.png'
         cairosvg.svg2png(bytestring=svg_data, write_to=png_file)
 
-    background = Image.open(config.get('Page', 'BaseVoucher'))
+    background = Image.open(config.page.base_voucher)
     background = background.convert("RGBA")
 
-    qr_x_coord = [e.strip() for e in config.get('Page', 'QrXCoord').split(',')]
-    qr_y_coord = [e.strip() for e in config.get('Page', 'QrYCoord').split(',')]
+    qr_x_coord = [e.strip() for e in config.page.qr_x_cord.split(',')]
+    qr_y_coord = [e.strip() for e in config.page.qr_y_cord.split(',')]
 
     current_qr_on_page = 0
     for xCord in qr_x_coord:
         front_image = Image.open(
-            config.get('General', 'OutputDirectory') + '/' + 'qr_Page_' + str(page_counter) + '_' + str(
+            config.general.output_directory + '/' + 'qr_Page_' + str(page_counter) + '_' + str(
                 current_qr_on_page) + '.png')
-        front_image = front_image.resize((int(config.get('Page', 'QrCodeSize')), int(config.get('Page', 'QrCodeSize'))))
+        front_image = front_image.resize((int(config.page.qr_code_size), int(config.page.qr_code_size)))
         front_image = front_image.convert("RGBA")
         background.paste(front_image, (int(xCord), int(qr_y_coord[current_qr_on_page])), front_image)
         current_qr_on_page = current_qr_on_page + 1
-    page_file_name = config.get('General', 'OutputDirectory') + '/' + 'page_' + str(page_counter) + '.png'
+    page_file_name = config.general.output_directory + '/' + 'page_' + str(page_counter) + '.png'
 
     background.save(page_file_name, format="png")
 
@@ -67,14 +64,13 @@ def create_page(page_counter, id_list):
 
 
 def main():
-    files = glob.glob(config.get('General', 'OutputDirectory') + '/*')
+    files = glob.glob(config.general.output_directory + '/*')
     for f in files:
         os.remove(f)
 
-    withdraw_link = ConfigWithdrawLink()
     voucher_ids = []
-    for x in range(int(config.get('Voucher', 'NumberOfVoucher'))):
-        voucher_ids.append(create_withdraw_link(withdraw_link))
+    for x in range(int(config.voucher.number_of_voucher)):
+        voucher_ids.append(create_withdraw_link())
 
     id_list = []
     page_counter = 0
@@ -97,8 +93,7 @@ def main():
         pdf.set_title('Ekasi Voucher')
         pdf.image(image, 1, 1, 210)
 
-    filename = config.get('General', 'OutputDirectory') + "/" + config.get('Voucher',
-                                                                           'NameOfVoucherBatch') + "_Vouchers.pdf"
+    filename = config.general.output_directory + "/" + config.voucher.name_of_voucher_batch + "_Vouchers.pdf"
     pdf.output(filename, "F")
     pdf.close()
 

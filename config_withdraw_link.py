@@ -1,5 +1,5 @@
 import configparser
-from WithdrawLink import WithdrawLink
+from withdraw_link import WithdrawLink
 
 
 class ConfigWithdrawLink(WithdrawLink):

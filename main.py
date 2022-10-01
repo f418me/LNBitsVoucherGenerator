@@ -7,7 +7,7 @@ import pandas as pd
 from fpdf import FPDF
 import os
 import glob
-from ConfigWithdrawLink import ConfigWithdrawLink
+from config_withdraw_link import ConfigWithdrawLink
 
 config = configparser.ConfigParser()
 config.read('config.ini')

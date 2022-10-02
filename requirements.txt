@@ -1,0 +1,4 @@
+cairosvg
+requests
+pillow
+fpdf

@@ -5,12 +5,12 @@ from fpdf import FPDF
 import logging
 
 
-def create_page(page_counter, id_list, page_config, output_directory):
+def create_page(page_counter, id_list, page_config, output_directory, svg_url):
     for i in range(len(id_list)):
-        svg_url = f"https://legend.lnbits.com/withdraw/img/{id_list[i]}"
+        svg_url_id = f"{svg_url}{id_list[i]}"
 
         # Get svg data
-        svg_data = requests.get(svg_url).content
+        svg_data = requests.get(svg_url_id).content
         png_file = f"{output_directory}/qr_Page_{str(page_counter)}_{str(i)}.png"
         cairosvg.svg2png(bytestring=svg_data, write_to=png_file)
 
@@ -36,7 +36,7 @@ def create_page(page_counter, id_list, page_config, output_directory):
     return page_file_name
 
 
-def generate_images(voucher_ids, page_config, output_directory):
+def generate_images(voucher_ids, page_config, output_directory, svg_url):
     id_list = []
     page_counter = 0
     file_name_pages = []
@@ -45,21 +45,20 @@ def generate_images(voucher_ids, page_config, output_directory):
         # Länge aus Array Koord ermitteln
         if len(id_list) == 4:
             page_counter += 1
-            file_name_pages.append(create_page(page_counter, id_list, page_config, output_directory))
+            file_name_pages.append(create_page(page_counter, id_list, page_config, output_directory, svg_url))
             id_list = []
     if len(id_list) > 0:
         page_counter += 1
-        file_name_pages.append(create_page(page_counter, id_list, page_config, output_directory))
+        file_name_pages.append(create_page(page_counter, id_list, page_config, output_directory, svg_url))
 
     return file_name_pages
 
 
-def generate_pdf(file_name_pages):
+def generate_pdf(file_name_pages,name_of_voucher_batch):
     pdf = FPDF()
-    voucher_title = 'Ekasi Voucher'
     for image in file_name_pages:
         pdf.add_page()
-        pdf.set_title(voucher_title)
+        pdf.set_title(name_of_voucher_batch)
         pdf.image(image, 1, 1, 210)
-    logging.info(f"Generated PDF \"{voucher_title}\" with {len(file_name_pages)} page(s).")
+    logging.info(f"Generated PDF \"{name_of_voucher_batch}\" with {len(file_name_pages)} page(s).")
     return pdf

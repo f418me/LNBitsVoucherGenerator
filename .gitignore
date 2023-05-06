@@ -1,5 +1,7 @@
 /venv/pyvenv.cfg
 /config_prod.ini
+bg_sc_2100.jpg
+lacertas_21000.jpg
 
 # Content of output directory
 output/*

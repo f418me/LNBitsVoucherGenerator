@@ -4,7 +4,7 @@ import configparser
 class _General:
     def __init__(self, parser):
         self.output_directory = parser["OutputDirectory"]
-
+        self.debug_level = parser["DebugLevel"]
 
 class _LNBits:
     def __init__(self, parser):

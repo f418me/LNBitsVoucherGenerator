@@ -7,15 +7,31 @@ from voucher_generator import generate_vouchers
 
 
 def clear_output_directory(output_directory):
+    os.makedirs(output_directory, exist_ok=True)
     files = glob.glob(output_directory + '/*')
-    for f in files:
-        os.remove(f)
+    for file_path in files:
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            try:
+                os.remove(file_path)
+            except OSError as exc:
+                logging.warning(f"Could not remove file \"{file_path}\": {exc}")
+        else:
+            logging.debug(f"Skipping non-file path in output directory: \"{file_path}\".")
     logging.info(f"Cleared output directory \"{output_directory}\".")
+
+
+def _resolve_logging_level(level_name):
+    normalized_name = str(level_name).upper()
+    level = getattr(logging, normalized_name, None)
+    return level if isinstance(level, int) else logging.INFO
 
 
 def main():
     config = Config("config.ini")
-    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=str(config.general.debug_level))
+    logging.basicConfig(
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        level=_resolve_logging_level(config.general.debug_level)
+    )
 
     clear_output_directory(config.general.output_directory)
 

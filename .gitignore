@@ -1,7 +1,28 @@
-/venv/pyvenv.cfg
-/config_prod.ini
+config_prod.ini
 bg_sc_2100.jpg
 lacertas_21000.jpg
 
-# Content of output directory
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache/build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Local logs
+*.log
+
+# Generated output (keep directory placeholder)
 output/*
+!output/.gitkeep
